@@ -26,7 +26,7 @@
  **************************************************************************************/
 
 #include <Arduino.h>
-#include <mbed.h>
+//#include <mbed.h>
 
 #include "RS485.h"
 #include "SmartServoConst.h"
@@ -89,7 +89,7 @@ public:
 
   void getInfo(Stream & stream, uint8_t const id);
 
-  inline void onErrorCb(mbed::Callback<void()> onError) { _onError = onError; }
+//  inline void onErrorCb(mbed::Callback<void()> onError) { _onError = onError; }
 
   inline int getErrors() const { return _errors; }
 
@@ -132,8 +132,8 @@ private:
   RS485Class& _RS485;
   int _errors;
   float _angular_velocity_deg_per_sec;
-  mbed::Callback<void()> _onError;
-  rtos::Mutex _mtx;
+//  mbed::Callback<void()> _onError;
+//  rtos::Mutex _mtx;
 
 
   struct __attribute__((packed)) {

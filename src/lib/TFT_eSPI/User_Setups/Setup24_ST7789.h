@@ -18,16 +18,21 @@
 //#define TFT_SCLK  27
 
 // Generic ESP32 setup
-#define TFT_MISO   SPI_MISO
-#define TFT_MOSI   SPI_MOSI
-#define TFT_SCLK   SPI_SCK
+//#define TFT_MISO   SPI_MISO
+//#define TFT_MOSI   SPI_MOSI
+//#define TFT_SCLK   SPI_SCK
+#define TFT_MISO   D12
+#define TFT_MOSI   D11
+#define TFT_SCLK   D13
 //#define TFT_CS    -1 // Not connected
 //#define TFT_DC    2
 //#define TFT_RST   4  // Connect reset to ensure display initialises
 
 // For NodeMCU - use pin numbers in the form PIN_Dx where Dx is the NodeMCU pin designation
-#define TFT_CS   digitalPinToPinName(10)      // Define as not used
-#define TFT_DC   digitalPinToPinName(9)  // Data Command control pin
+//#define TFT_CS   digitalPinToPinName(10)      // Define as not used
+//#define TFT_DC   digitalPinToPinName(9)  // Data Command control pin
+#define TFT_CS   D10      // Define as not used
+#define TFT_DC   D9  // Data Command control pin
 #define TFT_RST  -1  // TFT reset pin (could connect to NodeMCU RST, see next line)
 //#define TFT_RST  -1    // TFT reset pin connect to NodeMCU RST, must also then add 10K pull down to TFT SCK
 

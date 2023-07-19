@@ -58,12 +58,13 @@ PD_UFP_core_c::PD_UFP_core_c():
     memset(&protocol, 0, sizeof(PD_protocol_t));
 }
 
-void PD_UFP_core_c::init_PPS(rtos::Mutex & wire_mtx, uint16_t PPS_voltage, uint8_t PPS_current, enum PD_power_option_t power_option)
+//void PD_UFP_core_c::init_PPS(rtos::Mutex & wire_mtx, uint16_t PPS_voltage, uint8_t PPS_current, enum PD_power_option_t power_option)
+void PD_UFP_core_c::init_PPS(uint16_t PPS_voltage, uint8_t PPS_current, enum PD_power_option_t power_option)
 {
     // Initialize FUSB302
     pinMode(PIN_FUSB302_INT, INPUT_PULLUP); // Set FUSB302 int pin input ant pull up
     FUSB302.i2c_address = 0x22;
-    FUSB302.wire_mtx = &wire_mtx;
+//    FUSB302.wire_mtx = &wire_mtx;
     FUSB302.i2c_read = FUSB302_i2c_read;
     FUSB302.i2c_write = FUSB302_i2c_write;
     FUSB302.delay_ms = FUSB302_delay_ms;
@@ -120,9 +121,10 @@ void PD_UFP_core_c::clock_prescale_set(uint8_t prescaler)
     }
 }
 
-FUSB302_ret_t PD_UFP_core_c::FUSB302_i2c_read(rtos::Mutex & wire_mtx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count)
+//FUSB302_ret_t PD_UFP_core_c::FUSB302_i2c_read(rtos::Mutex & wire_mtx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count)
+FUSB302_ret_t PD_UFP_core_c::FUSB302_i2c_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count)
 {
-    mbed::ScopedLock<rtos::Mutex> lock(wire_mtx);
+//    mbed::ScopedLock<rtos::Mutex> lock(wire_mtx);
 
     Wire.beginTransmission(dev_addr);
     Wire.write(reg_addr);
@@ -135,9 +137,10 @@ FUSB302_ret_t PD_UFP_core_c::FUSB302_i2c_read(rtos::Mutex & wire_mtx, uint8_t de
     return count == 0 ? FUSB302_SUCCESS : FUSB302_ERR_READ_DEVICE;
 }
 
-FUSB302_ret_t PD_UFP_core_c::FUSB302_i2c_write(rtos::Mutex & wire_mtx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count)
+//FUSB302_ret_t PD_UFP_core_c::FUSB302_i2c_write(rtos::Mutex & wire_mtx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count)
+FUSB302_ret_t PD_UFP_core_c::FUSB302_i2c_write(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count)
 {
-    mbed::ScopedLock<rtos::Mutex> lock(wire_mtx);
+//    mbed::ScopedLock<rtos::Mutex> lock(wire_mtx);
 
     Wire.beginTransmission(dev_addr);
     Wire.write(reg_addr);
@@ -628,7 +631,8 @@ int PD_UFP_log_c::status_log_readline(char * buffer, int maxlen)
 
 void PD_UFP_log_c::print_status(HardwareSerial & serial)
 {
-    char buf[SERIAL_BUFFER_SIZE];
+//    char buf[SERIAL_BUFFER_SIZE];
+    char buf[64];
     if (status_log_readline(buf, sizeof(buf) - 1)) {
         serial.print(buf);
     }

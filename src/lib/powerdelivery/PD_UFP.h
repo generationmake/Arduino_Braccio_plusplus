@@ -63,7 +63,8 @@ class PD_UFP_core_c
     public:
         PD_UFP_core_c();
         // Init
-        void init_PPS(rtos::Mutex & wire_mtx, uint16_t PPS_voltage, uint8_t PPS_current, enum PD_power_option_t power_option = PD_POWER_OPTION_MAX_5V);
+//        void init_PPS(rtos::Mutex & wire_mtx, uint16_t PPS_voltage, uint8_t PPS_current, enum PD_power_option_t power_option = PD_POWER_OPTION_MAX_5V);
+        void init_PPS(uint16_t PPS_voltage, uint8_t PPS_current, enum PD_power_option_t power_option = PD_POWER_OPTION_MAX_5V);
         // Task
         void run(void);
         // Status
@@ -80,8 +81,10 @@ class PD_UFP_core_c
         static void clock_prescale_set(uint8_t prescaler);
 
     protected:
-        static FUSB302_ret_t FUSB302_i2c_read(rtos::Mutex & wire_mtx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count);
-        static FUSB302_ret_t FUSB302_i2c_write(rtos::Mutex & wire_mtx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count);
+//        static FUSB302_ret_t FUSB302_i2c_read(rtos::Mutex & wire_mtx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count);
+//        static FUSB302_ret_t FUSB302_i2c_write(rtos::Mutex & wire_mtx, uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count);
+        static FUSB302_ret_t FUSB302_i2c_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count);
+        static FUSB302_ret_t FUSB302_i2c_write(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint8_t count);
         static FUSB302_ret_t FUSB302_delay_ms(uint32_t t);
         void handle_protocol_event(PD_protocol_event_t events);
         void handle_FUSB302_event(FUSB302_event_t events);

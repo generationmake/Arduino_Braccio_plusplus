@@ -30,7 +30,7 @@
 #include "lib/ioexpander/TCA6424A.h"
 #include "lib/display/Backlight.h"
 #include "lib/motors/SmartServo.h"
-#include "drivers/Ticker.h"
+//#include "drivers/Ticker.h"
 
 #include "lib/TFT_eSPI/TFT_eSPI.h" // Hardware-specific library
 #include "lib/lvgl/lvgl.h"
@@ -89,8 +89,10 @@ public:
   inline bool isJoystickPressed_DOWN()   { return (digitalRead(BTN_DOWN) == LOW); }
   inline bool isButtonPressed_ENTER()    { return (digitalRead(BTN_ENTER) == LOW); }
 
-  inline void lvgl_lock  () { _display_mtx.lock(); }
-  inline void lvgl_unlock() { _display_mtx.unlock(); }
+//  inline void lvgl_lock  () { _display_mtx.lock(); }
+//  inline void lvgl_unlock() { _display_mtx.unlock(); }
+  inline void lvgl_lock  () {  }
+  inline void lvgl_unlock() {  }
 
   static BraccioClass& get_default_instance() {
     static BraccioClass dev;
@@ -110,7 +112,7 @@ private:
 
   void button_init();
 
-  rtos::Mutex _i2c_mtx;
+//  rtos::Mutex _i2c_mtx;
   RS485Class _serial485;
   SmartServoClass _servos;
   PD_UFP_log_c _PD_UFP;
@@ -121,8 +123,8 @@ private:
 
   bool _is_ping_allowed;
   bool _is_motor_connected[SmartServoClass::NUM_MOTORS];
-  rtos::Mutex _motors_connected_mtx;
-  rtos::Thread _motors_connected_thd;
+//  rtos::Mutex _motors_connected_mtx;
+//  rtos::Thread _motors_connected_thd;
   bool isPingAllowed();
   void setMotorConnectionStatus(int const id, bool const is_connected);
   void motorConnectedThreadFunc();
@@ -147,8 +149,8 @@ private:
   lv_group_t * _lvgl_p_obj_group;
   lv_indev_t * _lvgl_kb_indev;
   lv_style_t _lv_style;
-  rtos::Mutex _display_mtx;
-  rtos::Thread _display_thd;
+//  rtos::Mutex _display_mtx;
+//  rtos::Thread _display_thd;
   bool backlight_init();
   void display_init();
   void lvgl_init();
@@ -160,9 +162,9 @@ private:
 
   static uint32_t constexpr PD_IRQ_EVENT_FLAG   = 1;
   static uint32_t constexpr PD_TIMER_EVENT_FLAG = 2;
-  rtos::EventFlags _pd_events;
-  mbed::Ticker _pd_timer;
-  rtos::Thread _pd_thd;
+//  rtos::EventFlags _pd_events;
+//  mbed::Ticker _pd_timer;
+//  rtos::Thread _pd_thd;
   void pd_thread_func();
 };
 

@@ -28,7 +28,7 @@
 #error Please use lvgl >= 8.1
 #endif
 
-#include "mbed.h"
+//#include "mbed.h"
 
 /**************************************************************************************
  * DEFINES
@@ -64,16 +64,19 @@ using namespace std::chrono_literals;
  **************************************************************************************/
 
 BraccioClass::BraccioClass()
-: _i2c_mtx{}
-, _serial485{Serial1, 0, 7, 8} /* TX, DE, RE */
+//: _i2c_mtx{}
+: _serial485{Serial1, 0, 7, 8} /* TX, DE, RE */
+//, _serial485{Serial1, 0, 7, 8} /* TX, DE, RE */
 , _servos{_serial485}
 , _PD_UFP{PD_LOG_LEVEL_VERBOSE}
-, _expander{TCA6424A_ADDRESS_ADDR_HIGH, _i2c_mtx}
+//, _expander{TCA6424A_ADDRESS_ADDR_HIGH, _i2c_mtx}
+, _expander{TCA6424A_ADDRESS_ADDR_HIGH}
 , _is_ping_allowed{true}
 , _is_motor_connected{false}
-, _motors_connected_mtx{}
-, _motors_connected_thd{}
-, _bl{_i2c_mtx}
+//, _motors_connected_mtx{}
+//, _motors_connected_thd{}
+//, _bl{_i2c_mtx}
+, _bl{}
 , _gfx{}
 , _lvgl_disp_drv{}
 , _lvgl_indev_drv{}
@@ -81,11 +84,11 @@ BraccioClass::BraccioClass()
 , _lvgl_draw_buf{}
 , _lvgl_p_obj_group{nullptr}
 , _lvgl_kb_indev{nullptr}
-, _display_mtx{}
-, _display_thd{}
-, _pd_events{}
-, _pd_timer{}
-, _pd_thd{osPriorityHigh}
+//, _display_mtx{}
+//, _display_thd{}
+//, _pd_events{}
+//, _pd_timer{}
+//, _pd_thd{osPriorityHigh}
 {
 
 }
@@ -106,10 +109,10 @@ bool BraccioClass::begin(voidFuncPtr custom_menu, bool const wait_for_all_motor_
   attachInterrupt(PIN_FUSB302_INT, braccio_onPowerIrqEvent, FALLING);
   pinMode(RS485_RX_PIN, INPUT_PULLUP);
 
-  _PD_UFP.init_PPS(_i2c_mtx, PPS_V(7.2), PPS_A(2.0));
-  _pd_timer.attach(braccio_onPowerTimerEvent, 10ms);
+//  _PD_UFP.init_PPS(_i2c_mtx, PPS_V(7.2), PPS_A(2.0));
+//  _pd_timer.attach(braccio_onPowerTimerEvent, 10ms);
   braccio_onPowerIrqEvent(); /* Start power burst. */
-  _pd_thd.start(mbed::callback(this, &BraccioClass::pd_thread_func));
+//  _pd_thd.start(mbed::callback(this, &BraccioClass::pd_thread_func));
 
   button_init();
 
@@ -118,7 +121,7 @@ bool BraccioClass::begin(voidFuncPtr custom_menu, bool const wait_for_all_motor_
   display_init();
   if (!backlight_init()) return false;
   lvgl_init();
-  _display_thd.start(mbed::callback(this, &BraccioClass::display_thread_func));
+//  _display_thd.start(mbed::callback(this, &BraccioClass::display_thread_func));
 
   lvgl_splashScreen(2000);
   lv_obj_clean(lv_scr_act());
@@ -140,7 +143,7 @@ bool BraccioClass::begin(voidFuncPtr custom_menu, bool const wait_for_all_motor_
   _servos.setAngularVelocity(SmartServoClass::DEFAULT_ANGULAR_VELOCITY_deg_per_sec);
   _servos.setPositionMode(PositionMode::IMMEDIATE);
 
-  _motors_connected_thd.start(mbed::callback(this, &BraccioClass::motorConnectedThreadFunc));
+//  _motors_connected_thd.start(mbed::callback(this, &BraccioClass::motorConnectedThreadFunc));
 
   if (wait_for_all_motor_connected)
   {
@@ -159,19 +162,19 @@ bool BraccioClass::begin(voidFuncPtr custom_menu, bool const wait_for_all_motor_
 
 void BraccioClass::pingOn()
 {
-  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
+//  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
   _is_ping_allowed = true;
 }
 
 void BraccioClass::pingOff()
 {
-  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
+//  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
   _is_ping_allowed = false;
 }
 
 bool BraccioClass::connected(int const id)
 {
-  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
+//  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
   return _is_motor_connected[SmartServoClass::idToArrayIndex(id)];
 }
 
@@ -240,7 +243,7 @@ int BraccioClass::getKey() {
 
 void BraccioClass::connectJoystickTo(lv_obj_t* obj)
 {
-  mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
+//  mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
   lv_group_add_obj(_lvgl_p_obj_group, obj);
   lv_indev_set_group(_lvgl_kb_indev, _lvgl_p_obj_group);
 }
@@ -260,12 +263,12 @@ void BraccioClass::lvgl_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, l
 
 void BraccioClass::onPowerIrqEvent()
 {
- _pd_events.set(PD_IRQ_EVENT_FLAG);
+// _pd_events.set(PD_IRQ_EVENT_FLAG);
 }
 
 void BraccioClass::onPowerTimerEvent()
 {
-  _pd_events.set(PD_TIMER_EVENT_FLAG);
+//  _pd_events.set(PD_TIMER_EVENT_FLAG);
 }
 
 /**************************************************************************************
@@ -331,13 +334,13 @@ void BraccioClass::expander_setRed(int const i)
 
 bool BraccioClass::isPingAllowed()
 {
-  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
+//  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
   return _is_ping_allowed;
 }
 
 void BraccioClass::setMotorConnectionStatus(int const id, bool const is_connected)
 {
-  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
+//  mbed::ScopedLock<rtos::Mutex> lock(_motors_connected_mtx);
   _is_motor_connected[SmartServoClass::idToArrayIndex(id)] = is_connected;
 }
 
@@ -425,7 +428,7 @@ void BraccioClass::display_thread_func()
 {
   for(;; delay(LV_DISP_DEF_REFR_PERIOD))
   {
-    mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
+//    mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
     lv_task_handler();
     lv_tick_inc(LV_DISP_DEF_REFR_PERIOD);
   }
@@ -437,7 +440,7 @@ void BraccioClass::lvgl_splashScreen(unsigned long const duration_ms)
   lv_obj_t * img = nullptr;
 
   {
-    mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
+//    mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
     LV_IMG_DECLARE(img_bulb_gif);
     img = lv_gif_create(lv_scr_act());
     lv_gif_set_src(img, &img_bulb_gif);
@@ -448,14 +451,14 @@ void BraccioClass::lvgl_splashScreen(unsigned long const duration_ms)
   for (unsigned long const start = millis(); millis() - start < duration_ms; delay(10)) { }
 
   {
-    mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
+//    mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
     lv_obj_del(img);
   }
 }
 
 void BraccioClass::lvgl_pleaseConnectPower()
 {
-  mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
+//  mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
 
   lv_style_set_text_font(&_lv_style, &lv_font_montserrat_32);
   lv_obj_t * label1 = lv_label_create(lv_scr_act());
@@ -468,7 +471,7 @@ void BraccioClass::lvgl_pleaseConnectPower()
 
 void BraccioClass::lvgl_defaultMenu()
 {
-  mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
+//  mbed::ScopedLock<rtos::Mutex> lock(_display_mtx);
 
   lv_style_set_text_font(&_lv_style, &lv_font_montserrat_32);
   lv_obj_t * label1 = lv_label_create(lv_scr_act());
@@ -488,7 +491,7 @@ void BraccioClass::pd_thread_func()
   for(;;)
   {
     /* Wait for either a timer or a IRQ event. */
-    uint32_t const flags = _pd_events.wait_any(0xFF);
+//    uint32_t const flags = _pd_events.wait_any(0xFF);
 
     /* The actual calls to the PD library. */
     if ((millis() - last_time_ask_pps) > 5000)
@@ -503,20 +506,20 @@ void BraccioClass::pd_thread_func()
 #endif
 
     /* Set up the next time this loop is called. */
-    if (flags & PD_IRQ_EVENT_FLAG)
+//    if (flags & PD_IRQ_EVENT_FLAG)
     {
       start_pd_burst = millis();
-      _pd_timer.detach();
-      _pd_timer.attach(braccio_onPowerTimerEvent, 10ms);
+//      _pd_timer.detach();
+//      _pd_timer.attach(braccio_onPowerTimerEvent, 10ms);
     }
 
-    if (flags & PD_TIMER_EVENT_FLAG)
+//    if (flags & PD_TIMER_EVENT_FLAG)
     {
-      _pd_timer.detach();
-      if ((millis() - start_pd_burst) < START_PD_BURST_TIMEOUT_ms)
-        _pd_timer.attach(braccio_onPowerTimerEvent, 10ms);
-      else
-        _pd_timer.attach(braccio_onPowerTimerEvent, 1000ms);
+//      _pd_timer.detach();
+//      if ((millis() - start_pd_burst) < START_PD_BURST_TIMEOUT_ms)
+//        _pd_timer.attach(braccio_onPowerTimerEvent, 10ms);
+//      else
+//        _pd_timer.attach(braccio_onPowerTimerEvent, 1000ms);
     }
   }
 }

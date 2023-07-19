@@ -145,7 +145,8 @@ class Backlight
 {
 public:
 
-  Backlight(rtos::Mutex & wire_mtx);
+//  Backlight(rtos::Mutex & wire_mtx);
+  Backlight(void);
 
 
   void begin();
@@ -159,7 +160,7 @@ public:
 
 private:
 
-  rtos::Mutex & _wire_mtx;
+//  rtos::Mutex & _wire_mtx;
 
   void init();
   void reset();
